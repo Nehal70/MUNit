@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 'use client';
 
 import { useSession } from "next-auth/react";
@@ -56,4 +57,19 @@ export default function OrganiserPage() {
             </div>
         </main>
         );
+=======
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { PrismaClient } from "@prisma/client";
+
+
+const prisma = new PrismaClient();
+
+export default async function ParticipantDashboard() {
+    const [conferences, setConferences] = useState([]);
+    const [participantName, setParticipantName] = useState("Participant");
+
+    
+
+>>>>>>> Stashed changes
 }
