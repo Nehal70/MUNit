@@ -1,75 +1,50 @@
-<<<<<<< Updated upstream
-'use client';
+"use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-
-export default function OrganiserPage() {
-    const { data: session, status} = useSession();
-    const router = useRouter();
-
-    if (status === "loading") return <p>Loading...</p>;
-    if (!session) {
-        router.push("/signin");
-        return null;
-    }
-
-    const name = session.user?.name?.split(" ")[0] ?? "Organiser";
-
-      return (
-        <main className="p-8">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                <h1 className="text-4xl font-light">hello,</h1>
-                <h2 className="text-5xl font-bold">{name}</h2>
-                </div>
-
-                <div className="flex items-center gap-6">
-                <button
-                    onClick={() => router.push("/register-conference")}
-                    className="bg-black text-white rounded-full w-14 h-14 text-3xl flex items-center justify-center hover:scale-105 transition"
-                    title="Organise a New Conference"
-                >
-                    +
-                </button>
-                <button
-                    onClick={() => router.push("/organiser-profile")}
-                    title="View Profile"
-                >
-                    <span className="text-2xl">👤</span>
-                </button>
-                </div>
-            </div>
-
-            {/* Past Conferences */}
-            <h3 className="text-xl font-semibold mb-4">Past Conferences</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {/* Placeholder cards */}
-                {[1, 2, 3].map((_, idx) => (
-                <div
-                    key={idx}
-                    className="bg-gray-200 h-40 rounded-lg flex items-center justify-center text-gray-500"
-                >
-                    Conference {idx + 1}
-                </div>
-                ))}
-            </div>
-        </main>
-        );
-=======
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PrismaClient } from "@prisma/client";
 
 
 const prisma = new PrismaClient();
 
-export default async function ParticipantDashboard() {
+export default function ParticipantDashboard() {
     const [conferences, setConferences] = useState([]);
     const [participantName, setParticipantName] = useState("Participant");
-
-    
-
->>>>>>> Stashed changes
-}
+  
+    useEffect(() => {
+      const fetchConferences = async () => {
+        try {
+          const response = await fetch('/api/participant/conferences', {
+            headers: {
+              "x-user-id": "example-user-id", // Replace with actual user ID
+            },
+          });
+          const data = await response.json();
+          setConferences(data);
+          setParticipantName("John Doe"); // Replace with actual participant name
+        } catch (error) {
+          console.error("Failed to fetch conferences:", error);
+        }
+      };
+  
+      fetchConferences();
+    }, []);
+  
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-4">Welcome, {participantName}!</h1>
+        
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {conferences.map((conf) => (
+            <div key={conf.id} className="bg-white rounded-lg shadow p-4">
+              <h2 className="text-xl font-semibold mb-2">{conf.name}</h2>
+              <p className="text-gray-600">{conf.venue}</p>
+              <Button variant="default" size="sm" className="mt-4">
+                View Conference
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
