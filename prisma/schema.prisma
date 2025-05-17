@@ -33,6 +33,32 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Conference {
+  id               String   @id @default(cuid())
+  organiserEmail   String
+  name             String
+  startDate        DateTime
+  endDate          DateTime
+  participationFee Float
+  paymentDetails   String
+  venue            String
+  contactDetails   String
+  logo             Bytes?
+  committees       String[]
+  agendas          String[]
+  createdAt        DateTime @default(now())
+
+  participants     ConferenceParticipant[]
+}
+
 model User {
   id            String   @id @default(cuid())
   name          String?
@@ -42,13 +68,22 @@ model User {
   accounts      Account[]
   sessions      Session[]
   role          String?
+
+  conferenceParticipation ConferenceParticipant[]
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model ConferenceParticipant {
+  id           String     @id @default(cuid())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  conference   Conference @relation(fields: [conferenceId], references: [id])
+  conferenceId String
+  committee    String     // Assigned committee
+  createdAt    DateTime   @default(now())
 
-  @@unique([identifier, token])
+  @@unique([userId, conferenceId]) // Prevent duplicate entries
 }
+
+
+
 
