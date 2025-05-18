@@ -78,12 +78,22 @@ model ConferenceParticipant {
   userId       String
   conference   Conference @relation(fields: [conferenceId], references: [id])
   conferenceId String
-  committee    String     // Assigned committee
+  committee    String?    // Assigned committee
+  portfolio    String?    // Assigned portfolio
+
+  // New preference fields
+  committeePref1   String?
+  portfolioPref1   String?
+  committeePref2   String?
+  portfolioPref2   String?
+  committeePref3   String?
+  portfolioPref3   String?
+  remarks          String?
+
   createdAt    DateTime   @default(now())
 
-  @@unique([userId, conferenceId]) // Prevent duplicate entries
+  @@unique([userId, conferenceId])
 }
-
 
 
 
