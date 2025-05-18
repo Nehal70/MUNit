@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { FaMapMarkerAlt, FaCalendarAlt, FaEnvelope, FaDollarSign, FaFolderOpen } from "react-icons/fa";
 
@@ -20,6 +21,7 @@ export default function ParticipantDashboard() {
   const { data: session, status } = useSession();
   const [registeredConferences, setRegisteredConferences] = useState<Conference[]>([]);
   const [availableConferences, setAvailableConferences] = useState<Conference[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchConferences = async () => {
@@ -81,7 +83,12 @@ export default function ParticipantDashboard() {
                   <span>{conference.contactDetails}</span>
                 </div>
               </div>
-              <Button>View Details</Button>
+              <Button
+                onClick={() => router.push(`/conferences/${conference.id}`)}
+                className="bg-gray-900 text-white rounded-md px-4 py-2 mt-auto self-start hover:bg-gray-700 transition-all duration-300"
+              >
+                View Details
+              </Button>
             </div>
           ))
         )}
@@ -120,7 +127,12 @@ export default function ParticipantDashboard() {
                   <span>{conference.contactDetails}</span>
                 </div>
               </div>
-              <Button>Register</Button>
+              <Button
+                onClick={() => router.push(`/conferences/${conference.id}`)}
+                className="bg-gray-900 text-white rounded-md px-4 py-2 mt-auto self-start hover:bg-gray-700 transition-all duration-300"
+              >
+                View Details
+              </Button>
             </div>
           ))
         )}

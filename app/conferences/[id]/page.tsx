@@ -1,18 +1,9 @@
 // app/conferences/[id]/page.tsx
 
-"use client";
-
 import { notFound } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
 import { FaMapMarkerAlt, FaCalendarAlt, FaEnvelope, FaDollarSign, FaFolderOpen } from "react-icons/fa";
 
 export default async function ConferencePage({ params }: { params: { id: string } }) {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const [isRegistering, setIsRegistering] = useState(false);
-
   const res = await fetch(`http://localhost:3000/api/conferences/${params.id}`, {
     cache: "no-store",
   });
@@ -20,35 +11,6 @@ export default async function ConferencePage({ params }: { params: { id: string 
   if (!res.ok) return notFound();
 
   const conference = await res.json();
-
-  const handleRegister = async () => {
-    try {
-      setIsRegistering(true);
-      const response = await fetch(`/api/conferences/${params.id}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userEmail: session?.user?.email,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Successfully registered for this conference!");
-        router.push("/participant");
-      } else {
-        alert(data.error || "Failed to register for the conference.");
-      }
-    } catch (error) {
-      console.error("Failed to register:", error);
-      alert("Failed to register for the conference.");
-    } finally {
-      setIsRegistering(false);
-    }
-  };
 
   return (
     <main className="p-8 bg-gray-100 min-h-screen">
@@ -90,14 +52,11 @@ export default async function ConferencePage({ params }: { params: { id: string 
           </ul>
         </div>
 
+        {/* Placeholder Register Button */}
         <button
-          onClick={handleRegister}
-          disabled={isRegistering}
-          className={`bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300 ${
-            isRegistering ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
         >
-          {isRegistering ? "Registering..." : "Register Now"}
+          Register Now
         </button>
       </div>
     </main>
