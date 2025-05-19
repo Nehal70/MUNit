@@ -1,104 +1,129 @@
-// app/conferences/[id]/page.tsx
+'use client';
 
-"use client";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { notFound } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { FaMapMarkerAlt, FaCalendarAlt, FaEnvelope, FaDollarSign, FaFolderOpen } from "react-icons/fa";
-
-export default async function ConferencePage({ params }: { params: { id: string } }) {
-  const { data: session } = useSession();
+export default function RegisterForm({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [isRegistering, setIsRegistering] = useState(false);
 
-  const res = await fetch(`http://localhost:3000/api/conferences/${params.id}`, {
-    cache: "no-store",
+  const [conference, setConference] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [form, setForm] = useState({
+    committeePref1: '',
+    portfolioPref1: '',
+    committeePref2: '',
+    portfolioPref2: '',
+    committeePref3: '',
+    portfolioPref3: '',
+    remarks: '',
   });
 
-  if (!res.ok) return notFound();
+  useEffect(() => {
+    const fetchConference = async () => {
+      const res = await fetch(`/api/conferences/${params.id}`);
+      const data = await res.json();
+      setConference(data);
+      setLoading(false);
+    };
+    fetchConference();
+  }, [params.id]);
 
-  const conference = await res.json();
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleRegister = async () => {
-    try {
-      setIsRegistering(true);
-      const response = await fetch(`/api/conferences/${params.id}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userEmail: session?.user?.email,
-        }),
-      });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch(`/api/register/${params.id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Successfully registered for this conference!");
-        router.push("/participant");
-      } else {
-        alert(data.error || "Failed to register for the conference.");
-      }
-    } catch (error) {
-      console.error("Failed to register:", error);
-      alert("Failed to register for the conference.");
-    } finally {
-      setIsRegistering(false);
+    if (res.ok) {
+      alert('Registered successfully!');
+      router.push('/participant');
+    } else {
+      alert('Registration failed.');
     }
   };
 
+  if (loading) return <p className="p-8">Loading...</p>;
+  if (!conference) return <p className="p-8">Conference not found.</p>;
+
+  const committees = conference.committees || [];
+  const matrix = conference.committeeMatrix || {};
+
   return (
-    <main className="p-8 bg-gray-100 min-h-screen">
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-6">{conference.name}</h1>
+    <main className="p-8 bg-gray-50 min-h-screen">
+      <div className="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">{conference.name}</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-medium mb-1">Committee Preference {n}</label>
+                <select
+                  name={`committeePref${n}`}
+                  value={(form as any)[`committeePref${n}`]}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded"
+                  required={n === 1}
+                >
+                  <option value="">-- Select Committee --</option>
+                  {committees.map((c: string) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        <div className="text-gray-700 space-y-4 mb-8">
-          <div className="flex items-center gap-2">
-            <FaMapMarkerAlt className="text-gray-700" />
-            <span>{conference.venue}</span>
-          </div>
+              <div>
+                <label className="block font-medium mb-1">Portfolio Preference {n}</label>
+                <select
+                  name={`portfolioPref${n}`}
+                  value={(form as any)[`portfolioPref${n}`]}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded"
+                  required={n === 1}
+                >
+                  <option value="">-- Select Country --</option>
+                  {(matrix[(form as any)[`committeePref${n}`]] || '')
+                    .split(',')
+                    .map((country: string) => (
+                      <option key={country.trim()} value={country.trim()}>
+                        {country.trim()}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+          ))}
 
-          <div className="flex items-center gap-2">
-            <FaCalendarAlt className="text-gray-700" />
-            <span>
-              {new Date(conference.startDate).toLocaleDateString()} -{" "}
-              {new Date(conference.endDate).toLocaleDateString()}
-            </span>
+          <div>
+            <label className="block font-medium mb-1">Comments / Remarks</label>
+            <textarea
+              name="remarks"
+              value={form.remarks}
+              onChange={handleChange}
+              placeholder="Any preferences, requirements, or notes..."
+              className="w-full p-2 border rounded"
+              rows={4}
+            />
           </div>
-
-          <div className="flex items-center gap-2">
-            <FaDollarSign className="text-gray-700" />
-            <span>${conference.participationFee.toFixed(2)}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <FaEnvelope className="text-gray-700" />
-            <span>{conference.contactDetails}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <FaFolderOpen className="text-gray-700" />
-            <span>Committees:</span>
-          </div>
-          <ul className="list-disc ml-8 text-gray-700">
-            {conference.committees.map((committee: string, index: number) => (
-              <li key={index}>{committee}</li>
-            ))}
-          </ul>
-        </div>
 
         <button
-          onClick={handleRegister}
-          disabled={isRegistering}
-          className={`bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300 ${
-            isRegistering ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+        type="submit"
+        className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
         >
-          {isRegistering ? "Registering..." : "Register Now"}
+        Register Now
         </button>
+
+
+        </form>
       </div>
     </main>
   );

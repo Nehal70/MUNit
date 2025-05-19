@@ -18,6 +18,7 @@ export default function RegisterConferencePage() {
 
   const [committees, setCommittees] = useState<string[]>(['']);
   const [agendas, setAgendas] = useState<string[]>(['']);
+  const [committeeMatrix, setCommitteeMatrix] = useState<{ [committee: string]: string }>({});
   const [logo, setLogo] = useState<File | null>(null);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -35,6 +36,13 @@ export default function RegisterConferencePage() {
     const updated = [...agendas];
     updated[index] = value;
     setAgendas(updated);
+  };
+
+  const handleMatrixChange = (committee: string, countries: string) => {
+    setCommitteeMatrix(prev => ({
+      ...prev,
+      [committee]: countries,
+    }));
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,6 +70,7 @@ export default function RegisterConferencePage() {
     data.append('contactDetails', form.contactDetails);
     data.append('committees', JSON.stringify(committees));
     data.append('agendas', JSON.stringify(agendas));
+    data.append('committeeMatrix', JSON.stringify(committeeMatrix));
 
     const res = await fetch('/api/create-conference', {
       method: 'POST',
@@ -147,9 +156,9 @@ export default function RegisterConferencePage() {
           className="p-2 border rounded"
         />
 
-        <h3 className="text-xl font-semibold">Committees & Agendas</h3>
+        <h3 className="text-xl font-semibold">Committees, Agendas & Matrix</h3>
         {committees.map((committee, idx) => (
-          <div key={idx} className="flex flex-col gap-1">
+          <div key={idx} className="flex flex-col gap-2 border-b pb-4 mb-4">
             <input
               type="text"
               placeholder={`Committee ${idx + 1}`}
@@ -163,6 +172,14 @@ export default function RegisterConferencePage() {
               placeholder={`Agenda for Committee ${idx + 1}`}
               value={agendas[idx]}
               onChange={(e) => handleAgendaChange(idx, e.target.value)}
+              className="p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Comma-separated countries"
+              value={committeeMatrix[committee] || ''}
+              onChange={(e) => handleMatrixChange(committee, e.target.value)}
               className="p-2 border rounded"
               required
             />

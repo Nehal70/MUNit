@@ -9,6 +9,13 @@ export default function OrganiserPage() {
     const router = useRouter();
     const [conferences, setConferences] = useState([]);
 
+    // 🔁 Redirect to signin only after component mounts
+    useEffect(() => {
+        if (status !== "loading" && !session) {
+            router.push("/signin");
+        }
+    }, [session, status, router]);
+
     useEffect(() => {
         const fetchConferences = async () => {
             if (session?.user?.email) {
@@ -21,10 +28,7 @@ export default function OrganiserPage() {
     }, [session]);
 
     if (status === "loading") return <p>Loading...</p>;
-    if (!session) {
-        router.push("/signin");
-        return null;
-    }
+    if (!session) return null; // 🔒 prevents rendering until redirect happens
 
     const name = session.user?.name?.split(" ")[0] ?? "Organiser";
 
@@ -57,7 +61,7 @@ export default function OrganiserPage() {
             {conferences.map((conf: any) => (
                 <div key={conf.id} className="mb-4">
                     <h3 className="text-xl">{conf.name}</h3>
-                    <a href={`/conference/${conf.id}`} className="text-blue-600 underline">
+                    <a href={`/conferences/${conf.id}`} className="text-blue-600 underline">
                         View Conference Page
                     </a>
                 </div>
@@ -65,3 +69,4 @@ export default function OrganiserPage() {
         </main>
     );
 }
+

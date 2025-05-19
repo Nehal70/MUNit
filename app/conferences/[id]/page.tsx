@@ -53,11 +53,15 @@ export default async function ConferencePage({ params }: { params: { id: string 
         </div>
 
         {/* Placeholder Register Button */}
-        <button
-          className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
+        <a
+          href={`/register/${conference.id}`}
+          className="inline-block bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
         >
           Register Now
-        </button>
+        </a>
+
+
+
       </div>
     </main>
   );

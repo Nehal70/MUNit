@@ -54,6 +54,7 @@ model Conference {
   logo             Bytes?
   committees       String[]
   agendas          String[]
+  committeeMatrix Json?
   createdAt        DateTime @default(now())
 
   participants     ConferenceParticipant[]
