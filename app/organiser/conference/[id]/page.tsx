@@ -3,8 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { use } from 'react'; // Import React.use
 
 export default function OrganiserDashboard({ params }: { params: { id: string } }) {
+  // Unwrap the params object using React.use()
+  const unwrappedParams = use(params);
+  const id = unwrappedParams.id;
+  
   const { data: session, status } = useSession();
   const router = useRouter();
   const [conference, setConference] = useState<any>(null);
@@ -19,7 +24,8 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
     if (status === 'loading') return;
 
     const fetchData = async () => {
-      const res = await fetch(`/api/conferences/${params.id}`);
+      // Use the unwrapped id instead of params.id
+      const res = await fetch(`/api/conferences/${id}`);
       if (!res.ok) return router.push('/404');
       const conf = await res.json();
 
@@ -30,7 +36,8 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
 
       setConference(conf);
 
-      const pRes = await fetch(`/api/conferences/${params.id}/participants`);
+      // Use the unwrapped id here as well
+      const pRes = await fetch(`/api/conferences/${id}/participants`);
       const pData = await pRes.json();
       setParticipants(pData);
 
@@ -47,7 +54,7 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
     };
 
     fetchData();
-  }, [params.id, session, status, router]);
+  }, [id, session, status, router]); // Replace params.id with id in dependencies
 
   const handleAssign = (participantId: string, committee: string, portfolio: string) => {
     setLocalAssignments((prev) => ({
@@ -85,7 +92,8 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
       const a = localAssignments[p._id];
       if (!a || !a.committee || !a.portfolio) continue;
 
-      const res = await fetch(`/api/conferences/${params.id}/participants/${p._id}/allot`, {
+      // Use the unwrapped id here
+      const res = await fetch(`/api/conferences/${id}/participants/${p._id}/allot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(a),
@@ -117,7 +125,8 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          const res = await fetch(`/api/conferences/${params.id}`, {
+          // Use the unwrapped id here
+          const res = await fetch(`/api/conferences/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(conference),
@@ -213,15 +222,16 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
             </tr>
           </thead>
           <tbody>
-            {participants.map((p) => {
+            {participants.map((p, index) => {
               const current = localAssignments[p._id] || {
                 committee: p.committee || '',
                 portfolio: p.portfolio || '',
               };
-              const usedInCommittee = assigned[current.committee] || new Set();
-              const availablePortfolios = (conference.committeeMatrix?.[current.committee] || []).filter(
-                (port: string) => !usedInCommittee.has(port) || port === current.portfolio
-              );
+                const portfoliosArray = Array.isArray(conference.committeeMatrix?.[current.committee]) 
+                ? conference.committeeMatrix[current.committee] 
+                : [];
+                const availablePortfolios = portfoliosArray;
+
 
               const rowStyle = submittedRows.has(p._id)
                 ? 'bg-green-100'
@@ -229,8 +239,11 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
                 ? 'bg-red-100'
                 : '';
 
+              // Ensure we have a valid and unique key for each row
+              const rowKey = p._id ? `participant-${p._id}` : `participant-${p.email || index}`;
+              
               return (
-                <tr key={p._id} className={rowStyle}>
+                <tr key={rowKey} className={rowStyle}>
                   <td className="border px-4 py-2">{p.name}</td>
                   <td className="border px-4 py-2">{p.email}</td>
                   <td className="border px-4 py-2">
@@ -240,8 +253,8 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
                       onChange={(e) => handleCommitteeChange(p._id, e.target.value)}
                     >
                       <option value="">Select Committee</option>
-                      {Object.keys(conference.committeeMatrix || {}).map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                      {Object.keys(conference.committeeMatrix || {}).map((c, idx) => (
+                        <option key={`committee-${idx}-${c}`} value={c}>{c}</option>
                       ))}
                     </select>
                   </td>
@@ -253,8 +266,8 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
                       disabled={!current.committee}
                     >
                       <option value="">Select Portfolio</option>
-                      {availablePortfolios.map((port: string) => (
-                        <option key={port} value={port}>{port}</option>
+                      {availablePortfolios.map((port: string, idx) => (
+                        <option key={`portfolio-${idx}-${port}`} value={port}>{port}</option>
                       ))}
                     </select>
                   </td>

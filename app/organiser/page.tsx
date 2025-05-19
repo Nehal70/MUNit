@@ -3,13 +3,13 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { signOut } from 'next-auth/react';
 
 export default function OrganiserPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [conferences, setConferences] = useState([]);
 
-    // 🔁 Redirect to signin only after component mounts
     useEffect(() => {
         if (status !== "loading" && !session) {
             router.push("/signin");
@@ -28,9 +28,12 @@ export default function OrganiserPage() {
     }, [session]);
 
     if (status === "loading") return <p>Loading...</p>;
-    if (!session) return null; // 🔒 prevents rendering until redirect happens
+    if (!session) return null;
 
     const name = session.user?.name?.split(" ")[0] ?? "Organiser";
+    const email = session.user?.email ?? "unknown@email.com";
+
+    console.log("Current session:", session);
 
     return (
         <main className="p-8">
@@ -38,7 +41,7 @@ export default function OrganiserPage() {
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-4xl font-light">hello,</h1>
-                    <h2 className="text-5xl font-bold">{name}</h2>
+                    <h2 className="text-5xl font-bold">{email}</h2>
                 </div>
 
                 <div className="flex items-center gap-6">
@@ -55,6 +58,13 @@ export default function OrganiserPage() {
                     >
                         <span className="text-2xl">👤</span>
                     </button>
+                    <button
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        title="Logout"
+                        className="text-2xl"
+                    >
+                        🚪
+                    </button>
                 </div>
             </div>
 
@@ -69,4 +79,5 @@ export default function OrganiserPage() {
         </main>
     );
 }
+
 

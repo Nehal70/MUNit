@@ -1,16 +1,33 @@
-// app/conferences/[id]/page.tsx
+'use client';
 
-import { notFound } from "next/navigation";
-import { FaMapMarkerAlt, FaCalendarAlt, FaEnvelope, FaDollarSign, FaFolderOpen } from "react-icons/fa";
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useParams, useRouter } from 'next/navigation';
+import { FaMapMarkerAlt, FaCalendarAlt, FaEnvelope, FaDollarSign, FaFolderOpen } from 'react-icons/fa';
 
-export default async function ConferencePage({ params }: { params: { id: string } }) {
-  const res = await fetch(`http://localhost:3000/api/conferences/${params.id}`, {
-    cache: "no-store",
-  });
+export default function ConferencePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const params = useParams();
+  const [conference, setConference] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!res.ok) return notFound();
+  useEffect(() => {
+    const fetchConference = async () => {
+      const res = await fetch(`/api/conferences/${params.id}`, { cache: 'no-store' });
+      if (!res.ok) return router.push('/404');
+      const data = await res.json();
+      setConference(data);
+      setLoading(false);
+    };
 
-  const conference = await res.json();
+    fetchConference();
+  }, [params.id, router]);
+
+  if (loading || status === 'loading') return <p className="p-8">Loading...</p>;
+  if (!conference) return null;
+
+  const isOrganiser = session?.user?.email === conference.organiserEmail;
 
   return (
     <main className="p-8 bg-gray-100 min-h-screen">
@@ -33,7 +50,7 @@ export default async function ConferencePage({ params }: { params: { id: string 
 
           <div className="flex items-center gap-2">
             <FaDollarSign className="text-gray-700" />
-            <span>${conference.participationFee.toFixed(2)}</span>
+            <span>₹{conference.participationFee.toFixed(2)}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -52,16 +69,23 @@ export default async function ConferencePage({ params }: { params: { id: string 
           </ul>
         </div>
 
-        {/* Placeholder Register Button */}
+        {/* Register Button */}
         <a
           href={`/register/${conference.id}`}
-          className="inline-block bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
+          className="inline-block bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300 mr-4"
         >
           Register Now
         </a>
 
-
-
+        {/* Organiser Mode Button — Only for organiser */}
+        {isOrganiser && (
+          <a
+            href={`/organiser/conference/${conference.id}`}
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-all duration-300"
+          >
+            Organiser Mode
+          </a>
+        )}
       </div>
     </main>
   );
