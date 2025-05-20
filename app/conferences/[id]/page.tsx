@@ -11,6 +11,7 @@ export default function ConferencePage() {
   const params = useParams();
   const [conference, setConference] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   useEffect(() => {
     const fetchConference = async () => {
@@ -23,6 +24,17 @@ export default function ConferencePage() {
 
     fetchConference();
   }, [params.id, router]);
+
+  useEffect(() => {
+    const checkRegistration = async () => {
+      if (!session?.user?.email) return;
+      const res = await fetch(`/api/is-registered?conferenceId=${params.id}&email=${session.user.email}`);
+      const data = await res.json();
+      setIsRegistered(data.isRegistered);
+    };
+
+    checkRegistration();
+  }, [session, params.id]);
 
   if (loading || status === 'loading') return <p className="p-8">Loading...</p>;
   if (!conference) return null;
@@ -43,7 +55,7 @@ export default function ConferencePage() {
           <div className="flex items-center gap-2">
             <FaCalendarAlt className="text-gray-700" />
             <span>
-              {new Date(conference.startDate).toLocaleDateString()} -{" "}
+              {new Date(conference.startDate).toLocaleDateString()} -{' '}
               {new Date(conference.endDate).toLocaleDateString()}
             </span>
           </div>
@@ -69,13 +81,22 @@ export default function ConferencePage() {
           </ul>
         </div>
 
-        {/* Register Button */}
-        <a
-          href={`/register/${conference.id}`}
-          className="inline-block bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300 mr-4"
-        >
-          Register Now
-        </a>
+        {/* Register or View Button */}
+        {!isRegistered ? (
+          <a
+            href={`/register/${conference.id}`}
+            className="inline-block bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300 mr-4"
+          >
+            Register Now
+          </a>
+        ) : (
+          <a
+            href={`/participant/conference/${conference.id}`}
+            className="inline-block bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-all duration-300 mr-4"
+          >
+            View Conference
+          </a>
+        )}
 
         {/* Organiser Mode Button — Only for organiser */}
         {isOrganiser && (
@@ -90,3 +111,4 @@ export default function ConferencePage() {
     </main>
   );
 }
+

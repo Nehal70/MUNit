@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function RegisterForm({ params }: { params: { id: string } }) {
-  const router = useRouter();
-
-  const [conference, setConference] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
+  const { data: session } = useSession();
   const [form, setForm] = useState({
+    name: '',
+    email: '',
+    age: '',
+    institution: '',
+    grade: '',
     committeePref1: '',
     portfolioPref1: '',
     committeePref2: '',
@@ -36,6 +37,7 @@ export default function RegisterForm({ params }: { params: { id: string } }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const res = await fetch(`/api/register/${params.id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -128,3 +130,4 @@ export default function RegisterForm({ params }: { params: { id: string } }) {
     </main>
   );
 }
+
