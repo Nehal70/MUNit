@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { authOptions } from '../../auth/[...nextauth]/route';
+=======
+import { authOptions } from "../auth/[...nextauth]/route"; // adjust if needed
+>>>>>>> Stashed changes
 =======
 import { authOptions } from "../auth/[...nextauth]/route"; // adjust if needed
 >>>>>>> Stashed changes
@@ -37,6 +41,7 @@ export async function POST(
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     const existing = await prisma.conferenceParticipant.findUnique({
       where: {
         userId_conferenceId: {
@@ -50,6 +55,8 @@ export async function POST(
       return NextResponse.json({ error: 'Already registered' }, { status: 409 });
     }
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     const participant = await prisma.conferenceParticipant.create({
@@ -68,13 +75,19 @@ export async function POST(
 
     return NextResponse.json(participant, { status: 201 });
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   } catch (error) {
 =======
+=======
+>>>>>>> Stashed changes
   } catch (error: any) {
     if (error.code === 'P2002') {
       return NextResponse.json({ error: 'Already registered' }, { status: 409 });
     }
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     console.error(error);
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
