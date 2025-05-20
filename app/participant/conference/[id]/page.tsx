@@ -50,11 +50,19 @@ export default function ParticipantConferencePage() {
           <p><strong>Contact:</strong> {conference.contactDetails}</p>
         </div>
 
-        {/* Step 3 content will go below */}
         <div className="mt-8 space-y-4">
           <div className="bg-yellow-100 border border-yellow-300 p-4 rounded">
             <h2 className="font-bold text-lg mb-2">Announcements</h2>
-            {/* To be implemented in Step 3 */}
+            {conference.announcements?.length > 0 ? (
+                <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
+                    {conference.announcements.map((ann: string, idx: number) => (
+                    <li key={idx}>{ann}</li>
+                    ))}
+                </ul>
+                ) : (
+            <p className="text-sm text-gray-600">No announcements yet.</p>
+            )}
+
           </div>
 
           <div>
@@ -74,7 +82,9 @@ export default function ParticipantConferencePage() {
 
           <div className="bg-gray-100 border border-gray-300 p-4 rounded">
             <h2 className="font-bold text-lg mb-2">Conference Policy</h2>
-            {/* To be implemented in Step 3 */}
+            <p className="text-sm text-gray-800 whitespace-pre-line">
+                {conference.policyText || 'No policy uploaded yet.'}
+            </p>
           </div>
         </div>
       </div>

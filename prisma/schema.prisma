@@ -56,8 +56,10 @@ model Conference {
   agendas          String[]
   committeeMatrix Json?
   createdAt        DateTime @default(now())
-
+  
   participants     ConferenceParticipant[]
+  announcements   String[]  @default([])
+  policyText      String?   // Optional policy text
 }
 
 model User {

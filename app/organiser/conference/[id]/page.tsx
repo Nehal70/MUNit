@@ -140,6 +140,25 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
         onCommitteeChange={handleCommitteeChange}
         onSubmit={handleSubmitAllotments}
       />
+
+          <textarea
+      placeholder="Announcements (one per line)"
+      value={(conference.announcements || []).join('\n')}
+      onChange={(e) =>
+        setConference({ ...conference, announcements: e.target.value.split('\n').map((a) => a.trim()) })
+      }
+      className="p-2 border rounded w-full"
+      rows={3}
+      />
+
+      <textarea
+      placeholder="Conference Policy"
+      value={conference.policyText || ''}
+      onChange={(e) => setConference({ ...conference, policyText: e.target.value })}
+      className="p-2 border rounded w-full"
+      rows={4}
+      />
+
     </main>
   );
 }
