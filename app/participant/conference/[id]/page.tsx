@@ -50,21 +50,22 @@ export default function ParticipantConferencePage() {
           <p><strong>Contact:</strong> {conference.contactDetails}</p>
         </div>
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 space-y-6">
+          {/* Announcements */}
           <div className="bg-yellow-100 border border-yellow-300 p-4 rounded">
             <h2 className="font-bold text-lg mb-2">Announcements</h2>
             {conference.announcements?.length > 0 ? (
-                <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
-                    {conference.announcements.map((ann: string, idx: number) => (
-                    <li key={idx}>{ann}</li>
-                    ))}
-                </ul>
-                ) : (
-            <p className="text-sm text-gray-600">No announcements yet.</p>
+              <ul className="list-disc list-inside text-sm text-gray-800 space-y-1">
+                {conference.announcements.map((ann: string, idx: number) => (
+                  <li key={idx}>{ann}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-600">No announcements yet.</p>
             )}
-
           </div>
 
+          {/* Committees */}
           <div>
             <h2 className="font-bold text-lg mb-2">Committees</h2>
             <div className="flex flex-wrap gap-2">
@@ -80,10 +81,11 @@ export default function ParticipantConferencePage() {
             </div>
           </div>
 
+          {/* Policy */}
           <div className="bg-gray-100 border border-gray-300 p-4 rounded">
             <h2 className="font-bold text-lg mb-2">Conference Policy</h2>
             <p className="text-sm text-gray-800 whitespace-pre-line">
-                {conference.policyText || 'No policy uploaded yet.'}
+              {conference.policyText || 'No policy uploaded yet.'}
             </p>
           </div>
         </div>
@@ -91,3 +93,4 @@ export default function ParticipantConferencePage() {
     </main>
   );
 }
+

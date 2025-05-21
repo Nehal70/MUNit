@@ -38,7 +38,10 @@ export async function PUT(
         agendas: body.agendas,
         committeeMatrix: body.committeeMatrix,
         organiserEmail: body.organiserEmail,
-        // 🔒 Don't update createdAt — it's auto-managed
+
+        // ✅ New fields for announcements and policy
+        announcements: body.announcements,
+        policyText: body.policyText,
       },
     });
 

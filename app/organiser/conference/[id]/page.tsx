@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import EditConferenceForm from '@/components/organiser/EditConferenceForm';
 import ParticipantAllotmentTable from '@/components/organiser/ParticipantAllotmentTable';
+import ExecutiveBoardSection from '@/components/organiser/ExecutiveBoardSection';
 
 export default function OrganiserDashboard({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -141,24 +142,31 @@ export default function OrganiserDashboard({ params }: { params: { id: string } 
         onSubmit={handleSubmitAllotments}
       />
 
-          <textarea
-      placeholder="Announcements (one per line)"
-      value={(conference.announcements || []).join('\n')}
-      onChange={(e) =>
-        setConference({ ...conference, announcements: e.target.value.split('\n').map((a) => a.trim()) })
-      }
-      className="p-2 border rounded w-full"
-      rows={3}
+      <ExecutiveBoardSection
+        conferenceId={conference.id}
+        committees={conference.committees}
       />
 
       <textarea
-      placeholder="Conference Policy"
-      value={conference.policyText || ''}
-      onChange={(e) => setConference({ ...conference, policyText: e.target.value })}
-      className="p-2 border rounded w-full"
-      rows={4}
+        placeholder="Announcements (one per line)"
+        value={(conference.announcements || []).join('\n')}
+        onChange={(e) =>
+          setConference({
+            ...conference,
+            announcements: e.target.value.split('\n').map((a) => a.trim()),
+          })
+        }
+        className="p-2 border rounded w-full mt-8"
+        rows={3}
       />
 
+      <textarea
+        placeholder="Conference Policy"
+        value={conference.policyText || ''}
+        onChange={(e) => setConference({ ...conference, policyText: e.target.value })}
+        className="p-2 border rounded w-full mt-4"
+        rows={4}
+      />
     </main>
   );
 }
