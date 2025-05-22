@@ -1,10 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { use } from 'react';
 
-export default function RegisterForm({ params }: { params: { id: string } }) {
+export default function RegisterForm(promiseParams: { params: Promise<{ id: string }> }) {
+  const params = use(promiseParams.params);
   const { data: session } = useSession();
+  const router = useRouter();
+
+
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -19,6 +25,9 @@ export default function RegisterForm({ params }: { params: { id: string } }) {
     portfolioPref3: '',
     remarks: '',
   });
+
+  const [conference, setConference] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchConference = async () => {
@@ -59,53 +68,60 @@ export default function RegisterForm({ params }: { params: { id: string } }) {
   const matrix = conference.committeeMatrix || {};
 
   return (
-    <main className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-gray-50 min-h-screen">
       <div className="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center">{conference.name}</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium mb-1">Committee Preference {n}</label>
-                <select
-                  name={`committeePref${n}`}
-                  value={(form as any)[`committeePref${n}`]}
-                  onChange={handleChange}
-                  className="w-full border p-2 rounded"
-                  required={n === 1}
-                >
-                  <option value="">-- Select Committee --</option>
-                  {committees.map((c: string) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          {[1, 2, 3].map((n) => {
+            const committeePref = (form as any)[`committeePref${n}`];
+            const raw = matrix[committeePref];
+            const portfolioOptions =
+              committeePref && raw
+                ? Array.isArray(raw)
+                  ? raw
+                  : raw.split(',').map((c: string) => c.trim())
+                : [];
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-              <div>
-                <label className="block font-medium mb-1">Portfolio Preference {n}</label>
-                <select
-                  name={`portfolioPref${n}`}
-                  value={(form as any)[`portfolioPref${n}`]}
-                  onChange={handleChange}
-                  className="w-full border p-2 rounded"
-                  required={n === 1}
-                >
-                  <option value="">-- Select Country --</option>
-                  {(matrix[(form as any)[`committeePref${n}`]] || '')
-                    .split(',')
-                    .map((country: string) => (
-                      <option key={country.trim()} value={country.trim()}>
-                        {country.trim()}
+            return (
+              <div key={n} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-medium mb-1">Committee Preference {n}</label>
+                  <select
+                    name={`committeePref${n}`}
+                    value={committeePref}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required={n === 1}
+                  >
+                    <option value="">-- Select Committee --</option>
+                    {committees.map((c: string) => (
+                      <option key={c} value={c}>
+                        {c}
                       </option>
                     ))}
-                </select>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-medium mb-1">Portfolio Preference {n}</label>
+                  <select
+                    name={`portfolioPref${n}`}
+                    value={(form as any)[`portfolioPref${n}`]}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required={n === 1}
+                  >
+                    <option value="">-- Select Country --</option>
+                    {portfolioOptions.map((country: string) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div>
             <label className="block font-medium mb-1">Comments / Remarks</label>
@@ -119,39 +135,14 @@ export default function RegisterForm({ params }: { params: { id: string } }) {
             />
           </div>
 
-        <button
-        type="submit"
-        className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
-        >
-        Register Now
-        </button>
-
-
+          <button
+            type="submit"
+            className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-all duration-300"
+          >
+            Register Now
+          </button>
         </form>
       </div>
-    </main>
-=======
-      <input name="committeePref1" placeholder="Committee Preference 1" onChange={handleChange} required />
-      <input name="portfolioPref1" placeholder="Portfolio Preference 1" onChange={handleChange} />
-      <input name="committeePref2" placeholder="Committee Preference 2" onChange={handleChange} />
-      <input name="portfolioPref2" placeholder="Portfolio Preference 2" onChange={handleChange} />
-      <input name="committeePref3" placeholder="Committee Preference 3" onChange={handleChange} />
-      <input name="portfolioPref3" placeholder="Portfolio Preference 3" onChange={handleChange} />
-
-=======
-      <input name="committeePref1" placeholder="Committee Preference 1" onChange={handleChange} required />
-      <input name="portfolioPref1" placeholder="Portfolio Preference 1" onChange={handleChange} />
-      <input name="committeePref2" placeholder="Committee Preference 2" onChange={handleChange} />
-      <input name="portfolioPref2" placeholder="Portfolio Preference 2" onChange={handleChange} />
-      <input name="committeePref3" placeholder="Committee Preference 3" onChange={handleChange} />
-      <input name="portfolioPref3" placeholder="Portfolio Preference 3" onChange={handleChange} />
-
->>>>>>> Stashed changes
-      <textarea name="remarks" placeholder="Comments / Remarks" onChange={handleChange} className="w-full" />
-
-      <button type="submit" className="px-4 py-2 bg-black text-white rounded">Submit</button>
-    </form>
->>>>>>> Stashed changes
+    </div>
   );
 }
-
