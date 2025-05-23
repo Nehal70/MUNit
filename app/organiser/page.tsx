@@ -196,16 +196,16 @@ function ConferenceCard({ conference, darkMode }: { conference: Conference, dark
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <Button asChild className="bg-gradient-to-r from-[#000000] to-[#434343] text-white hover:opacity-90">
-            <Link href={`/organiser/conferences/${conference.id}`}>
-              View Details <FiExternalLink className="ml-2 text-sm" />
-            </Link>
-          </Button>
-          {conference.committees.length > 0 && (
-            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              {conference.committees.length} {conference.committees.length === 1 ? 'committee' : 'committees'}
-            </span>
-          )}
+            <Button asChild className="bg-gradient-to-r from-[#000000] to-[#434343] hover:from-[#000000] hover:to-[#434343]/90 text-white">
+                <Link href={`/conferences/${conference.id}`}>
+                View Details <FiExternalLink className="ml-2 text-sm" />
+                </Link>
+            </Button>
+            {conference.committees.length > 0 && (
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {conference.committees.length} {conference.committees.length === 1 ? 'committee' : 'committees'}
+                </span>
+            )}
         </div>
       </div>
     </div>
